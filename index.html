@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AdMatch — Timska Igrica · FMK</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:       #080c14;
+  --bg2:      #0d1424;
+  --bg3:      #111827;
+  --card:     #161f30;
+  --border:   #1e2d45;
+  --border2:  #253350;
+  --ink:      #f0f4ff;
+  --ink2:     #8ba4cc;
+  --ink3:     #4a6080;
+  --accent:   #3b82f6;
+  --acc2:     #60a5fa;
+  --acc-glow: rgba(59,130,246,.25);
+  --green:    #10b981;
+  --green-g:  rgba(16,185,129,.2);
+  --amber:    #f59e0b;
+  --amber-g:  rgba(245,158,11,.2);
+  --red:      #ef4444;
+  --red-g:    rgba(239,68,68,.2);
+  --broad:    #818cf8;
+  --phrase:   #fb923c;
+  --exact:    #34d399;
+  --r:        12px;
+}
+
+html,body{width:100%;min-height:100vh;background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;overflow-x:hidden}
+
+/* ── NOISE OVERLAY ─────────────────────────────── */
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:0;opacity:.4;
+}
+
+/* ── SCREENS ───────────────────────────────────── */
+.screen{display:none;position:relative;z-index:1;min-height:100vh;padding:24px 16px 60px}
+.screen.active{display:flex;flex-direction:column;align-items:center}
+
+/* ── TYPOGRAPHY ────────────────────────────────── */
+.syne{font-family:'Syne',sans-serif}
+.mono{font-family:'DM Mono',monospace}
+
+/* ── TOP BAR ───────────────────────────────────── */
+.topbar{
+  width:100%;max-width:900px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 0 28px;
+  border-bottom:1px solid var(--border);
+  margin-bottom:32px;
+}
+.brand{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;letter-spacing:-.02em;color:var(--ink)}
+.brand span{color:var(--accent)}
+.badge-fmk{
+  font-size:.65rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink3);border:1px solid var(--border2);padding:4px 10px;border-radius:100px;
+}
+
+/* ─────────────────────────────────────────────────
+   SCREEN 1: WELCOME
+───────────────────────────────────────────────── */
+#s-welcome{justify-content:center;text-align:center}
+.welcome-inner{max-width:500px;width:100%}
+
+.game-logo{
+  width:72px;height:72px;border-radius:20px;
+  background:linear-gradient(135deg,#1d4ed8,#7c3aed);
+  display:flex;align-items:center;justify-content:center;
+  font-size:2rem;margin:0 auto 28px;
+  box-shadow:0 0 40px rgba(59,130,246,.4);
+}
+
+.welcome-inner h1{
+  font-family:'Syne',sans-serif;font-size:2.4rem;font-weight:800;
+  letter-spacing:-.04em;line-height:1.1;margin-bottom:8px;
+}
+.welcome-inner h1 em{font-style:normal;color:var(--accent)}
+.welcome-sub{color:var(--ink2);font-size:.95rem;margin-bottom:36px;line-height:1.6}
+
+.exercise-select-wrap{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r);padding:20px;margin-bottom:20px;text-align:left;
+}
+.exercise-select-wrap label{
+  font-size:.75rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink3);display:block;margin-bottom:10px;
+}
+.exercise-select-wrap select{
+  width:100%;background:var(--bg2);border:1px solid var(--border2);
+  color:var(--ink);font-family:'DM Sans',sans-serif;font-size:.9rem;
+  padding:10px 14px;border-radius:8px;outline:none;cursor:pointer;
+}
+.exercise-select-wrap select:focus{border-color:var(--accent)}
+
+.team-input-wrap{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r);padding:20px;margin-bottom:24px;
+}
+.team-input-wrap label{
+  font-size:.75rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink3);display:block;margin-bottom:10px;
+}
+.team-input-wrap input{
+  width:100%;background:var(--bg2);border:2px solid var(--border2);
+  color:var(--ink);font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;
+  padding:12px 16px;border-radius:8px;outline:none;
+  transition:border-color .2s;
+}
+.team-input-wrap input:focus{border-color:var(--accent)}
+.team-input-wrap input::placeholder{color:var(--ink3);font-weight:400;font-family:'DM Sans',sans-serif}
+
+.btn-start{
+  width:100%;padding:14px;border-radius:10px;border:none;
+  background:linear-gradient(135deg,#1d4ed8,#4f46e5);
+  color:#fff;font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;
+  cursor:pointer;letter-spacing:.02em;
+  box-shadow:0 4px 20px rgba(59,130,246,.3);
+  transition:all .2s;
+}
+.btn-start:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(59,130,246,.4)}
+.btn-start:active{transform:translateY(0)}
+
+.lb-shortcut{
+  margin-top:20px;font-size:.83rem;color:var(--ink3);
+}
+.lb-shortcut button{
+  background:none;border:none;color:var(--acc2);cursor:pointer;
+  font-size:.83rem;font-family:'DM Sans',sans-serif;text-decoration:underline;
+  text-underline-offset:2px;
+}
+
+/* ─────────────────────────────────────────────────
+   SCREEN 2: GAME
+───────────────────────────────────────────────── */
+#s-game{align-items:stretch}
+.game-wrap{width:100%;max-width:960px;margin:0 auto}
+
+.game-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:20px;flex-wrap:wrap;gap:12px;
+}
+.team-pill{
+  display:flex;align-items:center;gap:8px;
+  background:var(--card);border:1px solid var(--border2);
+  border-radius:100px;padding:6px 16px 6px 8px;
+}
+.team-dot{width:10px;height:10px;border-radius:50%;background:var(--accent)}
+.team-name-display{font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700;color:var(--ink)}
+
+.conn-count{
+  font-family:'DM Mono',sans-serif;font-size:.8rem;color:var(--ink2);
+  background:var(--card);border:1px solid var(--border);
+  padding:6px 14px;border-radius:100px;
+}
+.conn-count span{color:var(--acc2);font-weight:600}
+
+.instr-bar{
+  background:var(--bg2);border:1px solid var(--border);
+  border-left:3px solid var(--accent);
+  border-radius:var(--r);padding:12px 16px;margin-bottom:18px;
+  font-size:.83rem;color:var(--ink2);line-height:1.6;
+}
+.instr-bar strong{color:var(--ink)}
+
+/* MATCH GRID */
+.match-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:16px;overflow:visible;position:relative;
+  box-shadow:0 8px 40px rgba(0,0,0,.4);
+}
+#connSVG{
+  position:absolute;inset:0;width:100%;height:100%;
+  pointer-events:none;z-index:5;overflow:visible;
+}
+.panel{padding:20px 16px}
+.panel-l{border-right:1px solid var(--border);border-radius:16px 0 0 16px}
+.panel-r{border-radius:0 16px 16px 0}
+.panel-head{
+  font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink3);padding-bottom:12px;margin-bottom:12px;
+  border-bottom:1px solid var(--border);
+}
+
+/* KW ITEMS */
+.kw{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:9px 11px;margin-bottom:7px;
+  border-radius:8px;border:2px solid var(--border);background:var(--bg2);
+  cursor:pointer;transition:all .15s;position:relative;z-index:10;user-select:none;
+}
+.kw:last-child{margin-bottom:0}
+.kw:hover{border-color:var(--border2);background:var(--bg3)}
+.kw.sel-broad {border-color:var(--broad); background:#1e1b40;box-shadow:0 2px 12px rgba(129,140,248,.2);transform:translateX(-2px)}
+.kw.sel-phrase{border-color:var(--phrase);background:#211710;box-shadow:0 2px 12px rgba(251,146,60,.2);transform:translateX(-2px)}
+.kw.sel-exact {border-color:var(--exact); background:#0d2520;box-shadow:0 2px 12px rgba(52,211,153,.2);transform:translateX(-2px)}
+
+.kw-code{font-family:'DM Mono',monospace;font-size:.82rem;color:var(--ink);flex:1}
+.kw-right{display:flex;align-items:center;gap:6px}
+.badge{font-size:.63rem;font-weight:700;padding:2px 7px;border-radius:100px;flex-shrink:0}
+.badge-broad {background:#312e81;color:var(--broad)}
+.badge-phrase{background:#431407;color:var(--phrase)}
+.badge-exact {background:#064e3b;color:var(--exact)}
+.ccount{
+  font-size:.68rem;font-weight:700;min-width:18px;text-align:center;
+  padding:2px 5px;border-radius:100px;background:var(--border);color:var(--ink3);
+  transition:all .2s;
+}
+.ccount.on{background:var(--accent);color:#fff}
+
+/* ST ITEMS */
+.st{
+  display:flex;align-items:center;
+  padding:9px 11px;margin-bottom:7px;
+  border-radius:8px;border:2px solid var(--border);background:var(--bg2);
+  cursor:pointer;transition:all .15s;position:relative;z-index:10;user-select:none;gap:7px;
+}
+.st:last-child{margin-bottom:0}
+.st:hover{border-color:var(--border2);background:var(--bg3)}
+.st.act-broad {border-color:#4f46e5;background:#1e1b40;transform:translateX(2px)}
+.st.act-phrase{border-color:#c2410c;background:#211710;transform:translateX(2px)}
+.st.act-exact {border-color:#059669;background:#0d2520;transform:translateX(2px)}
+.st-num{font-size:.68rem;font-weight:700;color:var(--ink3);min-width:16px}
+.st-text{font-size:.85rem;color:var(--ink2);flex:1}
+.st-dots{display:flex;gap:3px;align-items:center;flex-shrink:0}
+.dot{width:6px;height:6px;border-radius:50%}
+.dot-broad {background:var(--broad)}
+.dot-phrase{background:var(--phrase)}
+.dot-exact {background:var(--exact)}
+
+.game-footer{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-top:18px;flex-wrap:wrap;gap:10px;
+}
+.status-hint{font-size:.8rem;color:var(--ink3);flex:1}
+.status-hint.on{color:var(--acc2)}
+
+.btn-submit{
+  padding:10px 28px;border-radius:9px;border:none;
+  background:linear-gradient(135deg,#1d4ed8,#4f46e5);
+  color:#fff;font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700;
+  cursor:pointer;box-shadow:0 3px 14px rgba(59,130,246,.3);
+  transition:all .15s;
+}
+.btn-submit:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(59,130,246,.4)}
+.btn-submit:disabled{opacity:.4;cursor:not-allowed;transform:none}
+
+/* ─────────────────────────────────────────────────
+   SCREEN 3: RESULTS
+───────────────────────────────────────────────── */
+#s-results{align-items:stretch}
+.results-wrap{width:100%;max-width:820px;margin:0 auto}
+
+.score-hero{
+  text-align:center;padding:36px 24px;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:20px;margin-bottom:24px;
+  position:relative;overflow:hidden;
+}
+.score-hero::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% 0%,var(--acc-glow),transparent 60%);
+  pointer-events:none;
+}
+.score-emoji{font-size:3.5rem;margin-bottom:12px;display:block}
+.score-team{
+  font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;
+  color:var(--ink);margin-bottom:4px;
+}
+.score-num{
+  font-family:'Syne',sans-serif;font-size:4rem;font-weight:800;
+  letter-spacing:-.04em;line-height:1;
+  background:linear-gradient(135deg,#60a5fa,#818cf8);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;margin:12px 0 6px;
+}
+.score-label{font-size:.85rem;color:var(--ink2)}
+.score-bar-wrap{
+  max-width:300px;margin:16px auto 0;
+  background:var(--border);border-radius:100px;height:8px;overflow:hidden;
+}
+.score-bar-fill{height:100%;border-radius:100px;transition:width 1s ease;
+  background:linear-gradient(90deg,#3b82f6,#818cf8)}
+
+.stats-row{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;
+}
+.stat-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r);padding:16px;text-align:center;
+}
+.stat-val{
+  font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;
+  margin-bottom:4px;
+}
+.stat-val.green{color:var(--green)}
+.stat-val.red{color:var(--red)}
+.stat-val.amber{color:var(--amber)}
+.stat-lbl{font-size:.75rem;color:var(--ink3);text-transform:uppercase;letter-spacing:.06em}
+
+/* EXPLANATIONS */
+.expl-section{margin-bottom:24px}
+.expl-section h2{
+  font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;
+  color:var(--ink2);margin-bottom:14px;display:flex;align-items:center;gap:8px;
+}
+.expl-section h2::after{content:'';flex:1;height:1px;background:var(--border)}
+
+.expl-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r);margin-bottom:10px;overflow:hidden;
+}
+.expl-card-head{
+  display:flex;align-items:center;gap:10px;padding:12px 16px;
+  border-bottom:1px solid var(--border);
+}
+.expl-tag{
+  font-size:.65rem;font-weight:700;padding:2px 8px;
+  border-radius:100px;flex-shrink:0;
+  background:var(--red-g);color:var(--red);border:1px solid var(--red);
+}
+.expl-tag.missed{
+  background:var(--amber-g);color:var(--amber);border:1px solid var(--amber);
+}
+.expl-kw{
+  font-family:'DM Mono',monospace;font-size:.82rem;
+  background:var(--bg);border:1px solid var(--border2);
+  padding:3px 8px;border-radius:5px;color:var(--ink);
+}
+.expl-arrow{color:var(--ink3);font-size:.9rem}
+.expl-st{font-size:.85rem;color:var(--ink2);flex:1}
+
+.expl-card-body{padding:12px 16px}
+.expl-why{font-size:.83rem;color:var(--ink2);line-height:1.7;margin-bottom:8px}
+.expl-rule{
+  font-size:.78rem;color:var(--ink3);
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:7px;padding:8px 12px;line-height:1.6;
+}
+.expl-rule strong{color:var(--acc2)}
+
+.btn-lb{
+  width:100%;padding:13px;border-radius:10px;border:none;
+  background:linear-gradient(135deg,#1d4ed8,#4f46e5);
+  color:#fff;font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;
+  cursor:pointer;letter-spacing:.02em;
+  box-shadow:0 4px 20px rgba(59,130,246,.3);transition:all .2s;
+}
+.btn-lb:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(59,130,246,.4)}
+
+/* ─────────────────────────────────────────────────
+   SCREEN 4: LEADERBOARD
+───────────────────────────────────────────────── */
+#s-leaderboard{align-items:stretch}
+.lb-wrap{width:100%;max-width:680px;margin:0 auto}
+
+.lb-hero{
+  text-align:center;margin-bottom:28px;
+}
+.lb-hero h1{
+  font-family:'Syne',sans-serif;font-size:2.2rem;font-weight:800;
+  letter-spacing:-.04em;margin-bottom:6px;
+}
+.lb-hero p{color:var(--ink2);font-size:.9rem}
+
+.lb-list{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:16px;overflow:hidden;margin-bottom:20px;
+}
+.lb-row{
+  display:grid;grid-template-columns:48px 1fr auto auto;
+  align-items:center;gap:12px;
+  padding:14px 20px;border-bottom:1px solid var(--border);
+  transition:background .15s;
+}
+.lb-row:last-child{border-bottom:none}
+.lb-row:hover{background:var(--bg2)}
+.lb-row.lb-mine{
+  background:linear-gradient(90deg,rgba(59,130,246,.08),transparent);
+  border-left:3px solid var(--accent);
+}
+
+.lb-rank{
+  font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800;
+  text-align:center;color:var(--ink3);
+}
+.lb-rank.r1{color:#FFD700}
+.lb-rank.r2{color:#C0C0C0}
+.lb-rank.r3{color:#CD7F32}
+
+.lb-team{
+  font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;color:var(--ink);
+}
+.lb-team small{font-size:.72rem;color:var(--ink3);font-family:'DM Sans',sans-serif;display:block;margin-top:1px;font-weight:400}
+
+.lb-score{
+  font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;color:var(--acc2);
+  text-align:right;
+}
+.lb-pct{
+  font-size:.72rem;color:var(--ink3);font-family:'DM Mono',monospace;
+  text-align:right;
+}
+
+.lb-bar-cell{display:flex;align-items:center}
+.lb-bar-bg{
+  width:80px;height:5px;background:var(--border);
+  border-radius:100px;overflow:hidden;
+}
+.lb-bar-fill{height:100%;border-radius:100px;background:linear-gradient(90deg,#3b82f6,#818cf8)}
+
+.lb-empty{
+  text-align:center;padding:48px 24px;color:var(--ink3);
+  font-size:.9rem;line-height:1.7;
+}
+
+.lb-controls{display:flex;gap:10px;flex-wrap:wrap}
+.btn-refresh{
+  flex:1;padding:11px;border-radius:9px;border:1px solid var(--border2);
+  background:var(--card);color:var(--ink2);font-family:'DM Sans',sans-serif;
+  font-size:.9rem;font-weight:500;cursor:pointer;transition:all .15s;
+}
+.btn-refresh:hover{border-color:var(--accent);color:var(--ink)}
+.btn-new-team{
+  flex:2;padding:11px;border-radius:9px;border:none;
+  background:linear-gradient(135deg,#1d4ed8,#4f46e5);
+  color:#fff;font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700;
+  cursor:pointer;box-shadow:0 3px 14px rgba(59,130,246,.3);transition:all .15s;
+}
+.btn-new-team:hover{transform:translateY(-1px)}
+
+.loading-msg{
+  text-align:center;color:var(--ink3);font-size:.85rem;padding:32px;
+}
+
+/* ── TOAST ─────────────────────────────────────── */
+#toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:#1e2d45;border:1px solid var(--border2);
+  color:var(--ink);padding:10px 20px;border-radius:100px;
+  font-size:.83rem;font-weight:500;z-index:999;
+  opacity:0;transition:all .3s;pointer-events:none;
+  white-space:nowrap;
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── LEGEND ────────────────────────────────────── */
+.legend{
+  display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;
+}
+.lc{
+  display:flex;align-items:center;gap:6px;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:7px;padding:6px 12px;font-size:.75rem;
+}
+.lc-dot{width:8px;height:8px;border-radius:50%}
+.lc-name{font-weight:600;color:var(--ink2)}
+.lc-syn{color:var(--ink3);margin-left:1px}
+
+@media(max-width:580px){
+  .match-grid{grid-template-columns:1fr}
+  .panel-l{border-right:none;border-bottom:1px solid var(--border)}
+  #connSVG{display:none}
+  .stats-row{grid-template-columns:1fr 1fr;grid-template-rows:auto auto}
+  .lb-row{grid-template-columns:36px 1fr auto}
+  .lb-bar-cell{display:none}
+  .welcome-inner h1{font-size:1.8rem}
+}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════
+     SCREEN 1 — WELCOME
+══════════════════════════════════════════════ -->
+<div id="s-welcome" class="screen active">
+  <div class="topbar" style="max-width:500px">
+    <div class="brand syne">Ad<span>Match</span></div>
+    <div class="badge-fmk">FMK · Internet Oglašavanje</div>
+  </div>
+
+  <div class="welcome-inner">
+    <div class="game-logo">🎯</div>
+    <h1 class="syne">Keyword<br><em>Match Types</em></h1>
+    <p class="welcome-sub">Timska igrica — Povežite ključne reči sa search terms-ima i vidite ko pobedi na leaderboard-u.</p>
+
+    <div class="exercise-select-wrap">
+      <label>Izaberite vežbu</label>
+      <select id="exerciseSelect">
+        <option value="0">Vežba #1 — Obuća (patike, čizme)</option>
+        <option value="1">Vežba #2 — Turizam (hotel, letovanje)</option>
+        <option value="2">Vežba #3 — Elektronika (laptop, slušalice)</option>
+        <option value="3">Vežba #4 — Kozmetika (krema, parfem)</option>
+        <option value="4">Vežba #5 — Auto servis (servis, gume)</option>
+        <option value="5">Vežba #6 — Nekretnine (stan, iznajmljivanje)</option>
+        <option value="6">Vežba #7 — Dostava hrane (pizza, restoran)</option>
+      </select>
+    </div>
+
+    <div class="team-input-wrap">
+      <label>Naziv vašeg tima</label>
+      <input id="teamNameInput" type="text" placeholder="npr. Tim Alfa, Grupa 3..." maxlength="30" autocomplete="off">
+    </div>
+
+    <button class="btn-start" id="btnStart">Kreći → Igraj</button>
+
+    <p class="lb-shortcut">Već ste odigrali? <button onclick="showLeaderboard()">Vidi Leaderboard</button></p>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     SCREEN 2 — GAME
+══════════════════════════════════════════════ -->
+<div id="s-game" class="screen">
+  <div class="topbar">
+    <div class="brand syne">Ad<span>Match</span></div>
+    <div class="badge-fmk">FMK · Internet Oglašavanje</div>
+  </div>
+
+  <div class="game-wrap">
+    <div class="game-header">
+      <div class="team-pill">
+        <div class="team-dot"></div>
+        <div class="team-name-display" id="gameTeamName">—</div>
+      </div>
+      <div class="conn-count">Veze: <span id="connCountDisplay">0</span></div>
+    </div>
+
+    <div class="instr-bar">
+      <strong>Kako igrati:</strong> Kliknite na ključnu reč (levo) da je izaberete — ona će se obojiti. Zatim kliknite na search terms (desno) da uspostavite ili uklonite vezu. Jedna ključna reč može pokriti više search terms-a, i obrnuto.
+    </div>
+
+    <div class="legend" id="gameLegend">
+      <div class="lc"><div class="lc-dot" style="background:var(--broad)"></div><span class="lc-name">Broad</span><span class="lc-syn">bez znakova</span></div>
+      <div class="lc"><div class="lc-dot" style="background:var(--phrase)"></div><span class="lc-name">Phrase</span><span class="lc-syn">"navodnici"</span></div>
+      <div class="lc"><div class="lc-dot" style="background:var(--exact)"></div><span class="lc-name">Exact</span><span class="lc-syn">[zagrade]</span></div>
+    </div>
+
+    <div class="match-grid" id="matchGrid">
+      <svg id="connSVG"></svg>
+      <div class="panel panel-l">
+        <div class="panel-head">🔑 Ključne reči</div>
+        <div id="kwList"></div>
+      </div>
+      <div class="panel panel-r">
+        <div class="panel-head">🔍 Search Terms</div>
+        <div id="stList"></div>
+      </div>
+    </div>
+
+    <div class="game-footer">
+      <div class="status-hint" id="statusHint">← Kliknite na ključnu reč da počnete</div>
+      <button class="btn-submit" id="btnSubmit">Predaj odgovore ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     SCREEN 3 — RESULTS
+══════════════════════════════════════════════ -->
+<div id="s-results" class="screen">
+  <div class="topbar">
+    <div class="brand syne">Ad<span>Match</span></div>
+    <div class="badge-fmk">FMK · Internet Oglašavanje</div>
+  </div>
+
+  <div class="results-wrap">
+    <div class="score-hero">
+      <span class="score-emoji" id="resEmoji">🏆</span>
+      <div class="score-team" id="resTeamName">Tim Alfa</div>
+      <div class="score-num" id="resScoreNum">0/16</div>
+      <div class="score-label" id="resScoreLabel">tačnih veza</div>
+      <div class="score-bar-wrap">
+        <div class="score-bar-fill" id="resScoreBar" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-val green" id="statCorrect">0</div>
+        <div class="stat-lbl">Tačno</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val red" id="statWrong">0</div>
+        <div class="stat-lbl">Netačno</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val amber" id="statMissed">0</div>
+        <div class="stat-lbl">Propušteno</div>
+      </div>
+    </div>
+
+    <div id="explSection" class="expl-section"></div>
+
+    <button class="btn-lb" id="btnGoLb">📊 Pogledaj Leaderboard</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     SCREEN 4 — LEADERBOARD
+══════════════════════════════════════════════ -->
+<div id="s-leaderboard" class="screen">
+  <div class="topbar">
+    <div class="brand syne">Ad<span>Match</span></div>
+    <div class="badge-fmk">FMK · Internet Oglašavanje</div>
+  </div>
+
+  <div class="lb-wrap">
+    <div class="lb-hero">
+      <h1 class="syne">🏆 Leaderboard</h1>
+      <p>Rezultati svih timova — osvežite da vidite nove</p>
+    </div>
+
+    <div class="lb-list" id="lbList">
+      <div class="loading-msg">Učitavam rezultate…</div>
+    </div>
+
+    <div class="lb-controls">
+      <button class="btn-refresh" onclick="loadLeaderboard()">↺ Osveži</button>
+      <button class="btn-new-team" onclick="showScreen('s-welcome')">+ Novi Tim</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ══════════════════════════════════════════════════
+   EXERCISE DATA
+══════════════════════════════════════════════════ */
+const EXERCISES = [
+
+/* 0 — Obuća */
+{
+  label:"Vežba #1 — Obuća",
+  kws:[
+    {id:'k1',text:'patike',                       type:'broad'},
+    {id:'k2',text:'"patike za trčanje"',           type:'phrase'},
+    {id:'k3',text:'[patike za trčanje]',           type:'exact'},
+    {id:'k4',text:'ženske cipele',                 type:'broad'},
+    {id:'k5',text:'"ženske zimske čizme"',         type:'phrase'},
+    {id:'k6',text:'[ženske zimske čizme na petu]', type:'exact'},
+  ],
+  sts:[
+    {id:'s1', text:'patike za trčanje'},
+    {id:'s2', text:'ženske zimske čizme na petu'},
+    {id:'s3', text:'kupiti patike za trčanje online'},
+    {id:'s4', text:'zimske čizme za žene'},
+    {id:'s5', text:'patike za jogging'},
+    {id:'s6', text:'ženske cipele na štiklu'},
+    {id:'s7', text:'ženske zimske čizme'},
+    {id:'s8', text:'trčanje patike'},
+    {id:'s9', text:'ženske sandale na petu'},
+    {id:'s10',text:'jeftine ženske cipele'},
+  ],
+  correct:new Set(['k1:s1','k1:s3','k1:s5','k1:s8','k2:s1','k2:s3','k3:s1','k3:s8','k4:s2','k4:s4','k4:s6','k4:s7','k4:s9','k4:s10','k5:s2','k5:s7','k6:s2']),
+  expl:{
+    k1:'Broad Match "patike" — pokriva sve upite koji sadrže "patike" ili su tematski srodni. Google tretira "jogging" kao sinonim za "trčanje", a promena redosleda ("trčanje patike") je dozvoljena.',
+    k2:'Phrase Match "patike za trčanje" — fraza mora biti prisutna u tačnom redosledu. Dozvoljene su reči pre i posle fraze. "Trčanje patike" NE prolazi jer je redosled poremećen.',
+    k3:'Exact Match [patike za trčanje] — pokriva tačno poklapanje i bliske varijante. Promena redosleda ("trčanje patike") je bliska varijanta. Dodavanje reči isključuje match.',
+    k4:'Broad Match "ženske cipele" — pokriva sve ženske obućne upite: cipele na štiklu, zimske čizme, sandale, i generičke upite. Tematska srodnost je dovoljna.',
+    k5:'Phrase Match "ženske zimske čizme" — fraza mora biti u tačnom redosledu. "Ženske zimske čizme na petu" prolazi (reč posle). "Zimske čizme za žene" NE prolazi — redosled je drugačiji.',
+    k6:'Exact Match [ženske zimske čizme na petu] — samo tačno poklapanje. Kraća verzija bez "na petu" ne prolazi jer nedostaje deo koji menja značenje.',
+  },
+  pairExpl:{
+    'k1:s2':'Broad Match "patike" ne pokriva "ženske zimske čizme" — to su različite kategorije obuće, nije tematska srodnost.',
+    'k1:s4':'Broad Match "patike" ne pokriva "zimske čizme" — to su čizme, ne patike.',
+    'k1:s6':'Broad Match "patike" ne pokriva "cipele na štiklu" — potpuno različita kategorija.',
+    'k1:s7':'Broad Match "patike" ne pokriva "ženske zimske čizme" — ne postoji tematska srodnost.',
+    'k1:s9':'Broad Match "patike" ne pokriva "ženske sandale" — sandala ≠ patika.',
+    'k1:s10':'Broad Match "patike" ne pokriva "jeftine ženske cipele" — cipele nisu sinonim za patike.',
+    'k2:s4':'Phrase Match "patike za trčanje" — "zimske čizme za žene" ne sadrži frazu "patike za trčanje".',
+    'k2:s5':'Phrase Match "patike za trčanje" — "jogging" je Broad Match sinonim, ali Phrase Match zahteva tačan redosled reči fraze, ne sinonime.',
+    'k2:s8':'Phrase Match "patike za trčanje" — "trčanje patike" ima poremećen redosled reči, fraza nije prisutna.',
+    'k3:s3':'Exact Match [patike za trčanje] — "kupiti patike za trčanje online" ima dodatne reči, što isključuje Exact Match.',
+    'k3:s5':'Exact Match [patike za trčanje] — "patike za jogging" koristi sinonim, Exact ne prepoznaje sinonime.',
+    'k5:s4':'Phrase Match "ženske zimske čizme" — "zimske čizme za žene" ima poremećen redosled (žene je na kraju), fraza nije prisutna.',
+    'k5:s6':'Phrase Match "ženske zimske čizme" — "ženske cipele na štiklu" ne sadrži frazu "zimske čizme".',
+    'k6:s7':'Exact Match [ženske zimske čizme na petu] — "ženske zimske čizme" je kraća verzija bez "na petu", što znači da reč koja menja značenje nedostaje.',
+  }
+},
+
+/* 1 — Turizam */
+{
+  label:"Vežba #2 — Turizam",
+  kws:[
+    {id:'k1',text:'hotel Beograd',                          type:'broad'},
+    {id:'k2',text:'"hotel Beograd centar"',                 type:'phrase'},
+    {id:'k3',text:'[hotel Beograd centar]',                 type:'exact'},
+    {id:'k4',text:'letovanje Grčka',                        type:'broad'},
+    {id:'k5',text:'"letovanje Grčka all inclusive"',        type:'phrase'},
+    {id:'k6',text:'[letovanje Grčka all inclusive 2025]',   type:'exact'},
+  ],
+  sts:[
+    {id:'s1', text:'hotel u centru Beograda'},
+    {id:'s2', text:'letovanje Grčka all inclusive 2025'},
+    {id:'s3', text:'luksuzni hotel Beograd centar'},
+    {id:'s4', text:'apartman Beograd'},
+    {id:'s5', text:'letovanje Grčka hoteli'},
+    {id:'s6', text:'hotel Beograd centar'},
+    {id:'s7', text:'jeftino letovanje Grčka all inclusive'},
+    {id:'s8', text:'smestaj Beograd'},
+    {id:'s9', text:'letovanje Grčka porodično'},
+    {id:'s10',text:'letovanje Grčka all inclusive'},
+  ],
+  correct:new Set(['k1:s1','k1:s3','k1:s4','k1:s6','k1:s8','k2:s3','k2:s6','k3:s6','k4:s2','k4:s5','k4:s7','k4:s9','k4:s10','k5:s2','k5:s7','k5:s10','k6:s2']),
+  expl:{
+    k1:'Broad Match "hotel Beograd" — pokriva sve srodne upite za smeštaj u Beogradu. "Apartman" i "smestaj" su sinonimi u kontekstu smeštaja.',
+    k2:'Phrase Match "hotel Beograd centar" — fraza u tačnom redosledu. "Luksuzni hotel Beograd centar" prolazi (reč pre). "Hotel u centru Beograda" NE prolazi — redosled je drugačiji.',
+    k3:'Exact Match [hotel Beograd centar] — jedino tačno poklapanje prolazi. Svaka dodatna reč isključuje match.',
+    k4:'Broad Match "letovanje Grčka" — pokriva sve letovanje-Grčka varijante: hoteli, all inclusive, porodično, 2025.',
+    k5:'Phrase Match "letovanje Grčka all inclusive" — fraza u tačnom redosledu. "Jeftino ... all inclusive" (reč pre) i tačno poklapanje prolaze. Upit s "2025" posle fraze takođe prolazi.',
+    k6:'Exact Match [letovanje Grčka all inclusive 2025] — jedino tačno poklapanje. Verzija bez "2025" ne prolazi.',
+  },
+  pairExpl:{
+    'k1:s2':'Broad Match "hotel Beograd" ne pokriva letovanje u Grčkoj — različite su destinacije i konteksti.',
+    'k2:s1':'Phrase Match "hotel Beograd centar" — "hotel u centru Beograda" ima drugačiji redosled reči, fraza nije prisutna.',
+    'k3:s1':'Exact Match [hotel Beograd centar] — "hotel u centru Beograda" nije tačno poklapanje, reči su preraspoređene.',
+    'k3:s3':'Exact Match [hotel Beograd centar] — "luksuzni hotel Beograd centar" ima dodatnu reč "luksuzni", što isključuje Exact.',
+    'k5:s5':'Phrase Match "letovanje Grčka all inclusive" — "letovanje Grčka hoteli" ne sadrži "all inclusive", fraza nije prisutna.',
+    'k5:s9':'Phrase Match "letovanje Grčka all inclusive" — "porodično" ne sadrži frazu sa "all inclusive".',
+    'k6:s7':'Exact Match — "jeftino letovanje Grčka all inclusive" ima dodatnu reč "jeftino", ne prolazi Exact.',
+    'k6:s10':'Exact Match — "letovanje Grčka all inclusive" je kraće od ključne reči (nedostaje "2025").',
+  }
+},
+
+/* 2 — Elektronika */
+{
+  label:"Vežba #3 — Elektronika",
+  kws:[
+    {id:'k1',text:'laptop',                              type:'broad'},
+    {id:'k2',text:'"laptop za studente"',                type:'phrase'},
+    {id:'k3',text:'[laptop za studente]',                type:'exact'},
+    {id:'k4',text:'bežična slušalice',                   type:'broad'},
+    {id:'k5',text:'"bežične slušalice za sport"',        type:'phrase'},
+    {id:'k6',text:'[bežične slušalice za sport]',        type:'exact'},
+  ],
+  sts:[
+    {id:'s1', text:'laptop za studente'},
+    {id:'s2', text:'bežične slušalice za sport'},
+    {id:'s3', text:'jeftini laptop za studente i školu'},
+    {id:'s4', text:'gaming laptop'},
+    {id:'s5', text:'bežične slušalice'},
+    {id:'s6', text:'laptop preporuka'},
+    {id:'s7', text:'kupiti bežične slušalice za sport online'},
+    {id:'s8', text:'notebook računar'},
+    {id:'s9', text:'slušalice za jogging bežične'},
+    {id:'s10',text:'bežične slušalice za sport i trčanje'},
+  ],
+  correct:new Set(['k1:s1','k1:s3','k1:s4','k1:s6','k1:s8','k2:s1','k2:s3','k3:s1','k4:s2','k4:s5','k4:s7','k4:s9','k4:s10','k5:s2','k5:s7','k5:s10','k6:s2']),
+  expl:{
+    k1:'Broad Match "laptop" — pokriva sve laptopove: gaming, notebook, preporuke. "Notebook računar" je sinonim za laptop.',
+    k2:'Phrase Match "laptop za studente" — fraza u tačnom redosledu. Reči pre/posle su dozvoljene. "Gaming laptop" i "laptop preporuka" ne sadrže frazu.',
+    k3:'Exact Match [laptop za studente] — jedino tačno poklapanje. Fraza bez ikakvih izmena.',
+    k4:'Broad Match "bežična slušalice" — Google ispravlja gramatiku i pokriva sve bežične slušalice bez obzira na namenu.',
+    k5:'Phrase Match "bežične slušalice za sport" — fraza u tačnom redosledu. "I trčanje" posle fraze je dozvoljeno. "Slušalice za jogging bežične" NE prolazi — drugačiji redosled.',
+    k6:'Exact Match [bežične slušalice za sport] — jedino tačno poklapanje. "I trčanje" posle isključuje Exact.',
+  },
+  pairExpl:{
+    'k3:s3':'Exact Match — "jeftini laptop za studente i školu" ima dodatne reči, što isključuje Exact.',
+    'k5:s9':'Phrase Match — "slušalice za jogging bežične" ima poremećen redosled, fraza nije prisutna.',
+    'k6:s7':'Exact Match — "kupiti ... online" ima dodatne reči pre i posle fraze, ne prolazi Exact.',
+    'k6:s10':'Exact Match — "bežične slušalice za sport i trčanje" ima dodatne reči, ne prolazi Exact.',
+  }
+},
+
+/* 3 — Kozmetika */
+{
+  label:"Vežba #4 — Kozmetika",
+  kws:[
+    {id:'k1',text:'krema za lice',                        type:'broad'},
+    {id:'k2',text:'"krema za lice protiv bora"',          type:'phrase'},
+    {id:'k3',text:'[krema za lice protiv bora]',          type:'exact'},
+    {id:'k4',text:'parfem za žene',                       type:'broad'},
+    {id:'k5',text:'"ženski parfem floral"',               type:'phrase'},
+    {id:'k6',text:'[ženski parfem floral 100ml]',         type:'exact'},
+  ],
+  sts:[
+    {id:'s1', text:'krema za lice protiv bora'},
+    {id:'s2', text:'ženski parfem floral 100ml'},
+    {id:'s3', text:'prirodna krema za lice protiv bora i starenja'},
+    {id:'s4', text:'hidratantna krema za lice'},
+    {id:'s5', text:'parfem za žene cvetni miris'},
+    {id:'s6', text:'bora krema za lice'},
+    {id:'s7', text:'jeftini ženski parfem floral'},
+    {id:'s8', text:'noćna krema za kožu'},
+    {id:'s9', text:'parfem za dame'},
+    {id:'s10',text:'ženski parfem floral'},
+  ],
+  correct:new Set(['k1:s1','k1:s3','k1:s4','k1:s6','k1:s8','k2:s1','k2:s3','k3:s1','k4:s2','k4:s5','k4:s7','k4:s9','k4:s10','k5:s2','k5:s7','k5:s10','k6:s2']),
+  expl:{
+    k1:'Broad Match "krema za lice" — pokriva sve kreme za lice: hidratantne, noćne, protiv bora. "Bora krema za lice" prolazi jer sadrži iste reči u drugom redosledu.',
+    k2:'Phrase Match "krema za lice protiv bora" — fraza u tačnom redosledu. "Prirodna krema..." prolazi (reč pre + reči posle). "Bora krema za lice" NE prolazi — redosled je poremećen.',
+    k3:'Exact Match [krema za lice protiv bora] — jedino tačno poklapanje.',
+    k4:'Broad Match "parfem za žene" — pokriva sve ženske parfeme. "Parfem za dame" je sinonim.',
+    k5:'Phrase Match "ženski parfem floral" — fraza u tačnom redosledu. "Parfem za žene cvetni miris" NE prolazi — reč "floral" nije u frazi.',
+    k6:'Exact Match [ženski parfem floral 100ml] — jedino tačno poklapanje. Verzija bez "100ml" ne prolazi.',
+  },
+  pairExpl:{
+    'k2:s6':'Phrase Match — "bora krema za lice" ima poremećen redosled, fraza "krema za lice protiv bora" nije prisutna.',
+    'k5:s5':'Phrase Match "ženski parfem floral" — "parfem za žene cvetni miris" ne sadrži reč "floral" — fraza nije prisutna.',
+    'k6:s10':'Exact Match — "ženski parfem floral" je kraće od ključne reči (nedostaje "100ml").',
+  }
+},
+
+/* 4 — Auto servis */
+{
+  label:"Vežba #5 — Auto Servis",
+  kws:[
+    {id:'k1',text:'auto servis Beograd',                  type:'broad'},
+    {id:'k2',text:'"servis automobila Beograd centar"',   type:'phrase'},
+    {id:'k3',text:'[servis automobila Beograd centar]',   type:'exact'},
+    {id:'k4',text:'zimske gume',                          type:'broad'},
+    {id:'k5',text:'"zimske gume 205/55 R16"',             type:'phrase'},
+    {id:'k6',text:'[zimske gume 205/55 R16]',             type:'exact'},
+  ],
+  sts:[
+    {id:'s1', text:'servis automobila Beograd centar'},
+    {id:'s2', text:'zimske gume 205/55 R16'},
+    {id:'s3', text:'jeftin servis automobila Beograd centar'},
+    {id:'s4', text:'vulkanizer Beograd'},
+    {id:'s5', text:'zimske gume akcija'},
+    {id:'s6', text:'auto servis Novi Beograd'},
+    {id:'s7', text:'kupovina zimske gume 205/55 R16 online'},
+    {id:'s8', text:'mehaničar Beograd'},
+    {id:'s9', text:'letnje gume R16'},
+    {id:'s10',text:'zimske gume R16 205/55'},
+  ],
+  correct:new Set(['k1:s1','k1:s3','k1:s4','k1:s6','k1:s8','k2:s1','k2:s3','k3:s1','k4:s2','k4:s5','k4:s7','k4:s10','k5:s2','k5:s7','k6:s2']),
+  expl:{
+    k1:'Broad Match "auto servis Beograd" — pokriva vulkanizere, mehaničare i servise u Beogradu i okolini (Novi Beograd = isti kontekst).',
+    k2:'Phrase Match "servis automobila Beograd centar" — fraza u tačnom redosledu. "Jeftin servis..." prolazi (reč pre). "Auto servis Novi Beograd" NE prolazi — fraza nije prisutna.',
+    k3:'Exact Match [servis automobila Beograd centar] — jedino tačno poklapanje.',
+    k4:'Broad Match "zimske gume" — pokriva zimske gume: akcija, R16, 205/55. "Letnje gume" NE prolazi — sezona je suprotna.',
+    k5:'Phrase Match "zimske gume 205/55 R16" — fraza u tačnom redosledu. "Kupovina ... online" prolazi. "Zimske gume R16 205/55" NE prolazi — redosled dimenzija je poremećen.',
+    k6:'Exact Match [zimske gume 205/55 R16] — jedino tačno poklapanje. Promena redosleda dimenzija ne prolazi.',
+  },
+  pairExpl:{
+    'k4:s9':'Broad Match "zimske gume" — "letnje gume R16" koristi suprotnu sezonu, nema tematske srodnosti sa zimskim gumama.',
+    'k5:s10':'Phrase Match — "zimske gume R16 205/55" ima poremećen redosled dimenzija, fraza "205/55 R16" nije prisutna.',
+    'k6:s7':'Exact Match — "kupovina zimske gume 205/55 R16 online" ima dodatne reči, ne prolazi Exact.',
+    'k6:s10':'Exact Match — redosled "R16 205/55" je poremećen u odnosu na ključnu reč.',
+  }
+},
+
+/* 5 — Nekretnine */
+{
+  label:"Vežba #6 — Nekretnine",
+  kws:[
+    {id:'k1',text:'stan Beograd',                              type:'broad'},
+    {id:'k2',text:'"stan na prodaju Beograd"',                 type:'phrase'},
+    {id:'k3',text:'[stan na prodaju Beograd]',                 type:'exact'},
+    {id:'k4',text:'iznajmljivanje stanova Novi Sad',           type:'broad'},
+    {id:'k5',text:'"iznajmljivanje stanova Novi Sad centar"',  type:'phrase'},
+    {id:'k6',text:'[iznajmljivanje stanova Novi Sad centar]',  type:'exact'},
+  ],
+  sts:[
+    {id:'s1', text:'stan na prodaju Beograd'},
+    {id:'s2', text:'iznajmljivanje stanova Novi Sad centar'},
+    {id:'s3', text:'jednosoban stan na prodaju Beograd'},
+    {id:'s4', text:'stan za iznajmljivanje Beograd'},
+    {id:'s5', text:'iznajmljivanje stanova Novi Sad jeftino'},
+    {id:'s6', text:'kuća na prodaju Beograd'},
+    {id:'s7', text:'iznajmljivanje stanova Novi Sad centar odmah'},
+    {id:'s8', text:'garsonjera Beograd'},
+    {id:'s9', text:'nekretnine Novi Sad'},
+    {id:'s10',text:'stan Novi Sad centar iznajmljivanje'},
+  ],
+  correct:new Set(['k1:s1','k1:s3','k1:s4','k1:s6','k1:s8','k2:s1','k2:s3','k3:s1','k4:s2','k4:s5','k4:s7','k4:s9','k4:s10','k5:s2','k5:s7','k6:s2']),
+  expl:{
+    k1:'Broad Match "stan Beograd" — pokriva stanove, kuće, garsonjere, prodaju i iznajmljivanje u Beogradu.',
+    k2:'Phrase Match "stan na prodaju Beograd" — fraza u tačnom redosledu. "Jednosoban stan na prodaju Beograd" prolazi (reč pre). "Stan za iznajmljivanje Beograd" NE prolazi — nema "na prodaju".',
+    k3:'Exact Match [stan na prodaju Beograd] — jedino tačno poklapanje.',
+    k4:'Broad Match "iznajmljivanje stanova Novi Sad" — pokriva sve varijante iznajmljivanja u Novom Sadu. Iste reči u drugom redosledu (s10) prolaze.',
+    k5:'Phrase Match "iznajmljivanje stanova Novi Sad centar" — fraza u tačnom redosledu. "Odmah" posle fraze je dozvoljena. "Stan Novi Sad centar iznajmljivanje" NE prolazi — redosled je drugačiji.',
+    k6:'Exact Match [iznajmljivanje stanova Novi Sad centar] — jedino tačno poklapanje.',
+  },
+  pairExpl:{
+    'k2:s4':'Phrase Match "stan na prodaju Beograd" — "stan za iznajmljivanje Beograd" ne sadrži frazu "na prodaju".',
+    'k5:s10':'Phrase Match — "stan Novi Sad centar iznajmljivanje" ima poremećen redosled, fraza nije prisutna.',
+    'k6:s7':'Exact Match — "iznajmljivanje stanova Novi Sad centar odmah" ima dodatnu reč "odmah", što isključuje Exact.',
+  }
+},
+
+/* 6 — Dostava hrane */
+{
+  label:"Vežba #7 — Dostava Hrane",
+  kws:[
+    {id:'k1',text:'dostava hrane',                        type:'broad'},
+    {id:'k2',text:'"dostava hrane Beograd"',              type:'phrase'},
+    {id:'k3',text:'[dostava hrane Beograd]',              type:'exact'},
+    {id:'k4',text:'pizza restoran',                       type:'broad'},
+    {id:'k5',text:'"pizza restoran Zemun"',               type:'phrase'},
+    {id:'k6',text:'[pizza restoran Zemun dostava]',       type:'exact'},
+  ],
+  sts:[
+    {id:'s1', text:'dostava hrane Beograd'},
+    {id:'s2', text:'pizza restoran Zemun dostava'},
+    {id:'s3', text:'brza dostava hrane Beograd noću'},
+    {id:'s4', text:'dostava sushi Beograd'},
+    {id:'s5', text:'pizza Zemun'},
+    {id:'s6', text:'dostava hrane kući'},
+    {id:'s7', text:'pizza restoran Zemun'},
+    {id:'s8', text:'online naručivanje hrane'},
+    {id:'s9', text:'pizza dostava Zemun'},
+    {id:'s10',text:'jeftina pizza restoran Zemun'},
+  ],
+  correct:new Set(['k1:s1','k1:s3','k1:s4','k1:s6','k1:s8','k2:s1','k2:s3','k3:s1','k4:s2','k4:s5','k4:s7','k4:s9','k4:s10','k5:s2','k5:s7','k5:s10','k6:s2']),
+  expl:{
+    k1:'Broad Match "dostava hrane" — pokriva sve oblike dostave hrane: sushi, pizza, online naručivanje, dostava kući.',
+    k2:'Phrase Match "dostava hrane Beograd" — fraza u tačnom redosledu. "Brza dostava hrane Beograd noću" prolazi. "Dostava hrane kući" NE prolazi — nedostaje "Beograd".',
+    k3:'Exact Match [dostava hrane Beograd] — jedino tačno poklapanje.',
+    k4:'Broad Match "pizza restoran" — pokriva sve pizza restorane i dostave. "Pizza dostava Zemun" i "pizza Zemun" prolaze.',
+    k5:'Phrase Match "pizza restoran Zemun" — fraza u tačnom redosledu. "Jeftina pizza restoran Zemun" (reč pre) i "pizza restoran Zemun dostava" (reč posle) prolaze. "Pizza dostava Zemun" NE prolazi — poremećen redosled.',
+    k6:'Exact Match [pizza restoran Zemun dostava] — jedino tačno poklapanje. "Pizza restoran Zemun" bez "dostava" ne prolazi.',
+  },
+  pairExpl:{
+    'k2:s6':'Phrase Match "dostava hrane Beograd" — "dostava hrane kući" ne sadrži "Beograd", fraza nije prisutna.',
+    'k5:s9':'Phrase Match — "pizza dostava Zemun" ima poremećen redosled, "restoran" nedostaje iz fraze.',
+    'k6:s7':'Exact Match — "pizza restoran Zemun" je kraće od ključne reči (nedostaje "dostava").',
+  }
+},
+
+];
+
+/* ══════════════════════════════════════════════════
+   STATE
+══════════════════════════════════════════════════ */
+let currentExIdx = 0;
+let selectedKw   = null;
+let connections  = new Set();
+let teamName     = '';
+
+/* ══════════════════════════════════════════════════
+   NAVIGATION
+══════════════════════════════════════════════════ */
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+/* ══════════════════════════════════════════════════
+   WELCOME → START
+══════════════════════════════════════════════════ */
+document.getElementById('btnStart').addEventListener('click',()=>{
+  const name = document.getElementById('teamNameInput').value.trim();
+  if(!name){showToast('⚠️ Unesite naziv tima!');return;}
+  teamName = name;
+  currentExIdx = parseInt(document.getElementById('exerciseSelect').value);
+  connections = new Set();
+  selectedKw = null;
+  document.getElementById('gameTeamName').textContent = teamName;
+  renderGame();
+  showScreen('s-game');
+});
+
+document.getElementById('teamNameInput').addEventListener('keydown',e=>{
+  if(e.key==='Enter') document.getElementById('btnStart').click();
+});
+
+/* ══════════════════════════════════════════════════
+   GAME RENDER
+══════════════════════════════════════════════════ */
+function renderGame(){
+  renderKws();
+  renderSts();
+  updateConnCount();
+  updateHint();
+  requestAnimationFrame(drawLines);
+}
+
+function renderKws(){
+  const ex = EXERCISES[currentExIdx];
+  const list = document.getElementById('kwList');
+  list.innerHTML='';
+  ex.kws.forEach(kw=>{
+    const cnt = [...connections].filter(c=>c.startsWith(kw.id+':')).length;
+    const isSel = selectedKw===kw.id;
+    const div = document.createElement('div');
+    div.id='kw-'+kw.id;
+    div.className='kw'+(isSel?' sel-'+kw.type:'');
+    div.innerHTML=`
+      <div class="kw-code">${h(kw.text)}</div>
+      <div class="kw-right">
+        <span class="ccount${cnt>0?' on':''}">${cnt}</span>
+        <span class="badge badge-${kw.type}">${kw.type==='broad'?'Broad':kw.type==='phrase'?'Phrase':'Exact'}</span>
+      </div>`;
+    div.addEventListener('click',()=>{
+      selectedKw = selectedKw===kw.id?null:kw.id;
+      renderGame();
+    });
+    list.appendChild(div);
+  });
+}
+
+function renderSts(){
+  const ex = EXERCISES[currentExIdx];
+  const list = document.getElementById('stList');
+  list.innerHTML='';
+  ex.sts.forEach((st,i)=>{
+    const connKws = ex.kws.filter(kw=>connections.has(kw.id+':'+st.id));
+    const isActToSel = selectedKw && connections.has(selectedKw+':'+st.id);
+    const selKwObj = ex.kws.find(k=>k.id===selectedKw);
+    const dots = connKws.map(kw=>`<div class="dot dot-${kw.type}"></div>`).join('');
+    let actClass = '';
+    if(isActToSel && selKwObj) actClass=' act-'+selKwObj.type;
+    const div = document.createElement('div');
+    div.id='st-'+st.id;
+    div.className='st'+actClass;
+    div.innerHTML=`<span class="st-num">${i+1}.</span><span class="st-text">${h(st.text)}</span><div class="st-dots">${dots}</div>`;
+    div.addEventListener('click',()=>{
+      if(!selectedKw) return;
+      const key=selectedKw+':'+st.id;
+      connections.has(key)?connections.delete(key):connections.add(key);
+      renderGame();
+    });
+    list.appendChild(div);
+  });
+}
+
+function updateConnCount(){
+  document.getElementById('connCountDisplay').textContent=connections.size;
+}
+
+function updateHint(){
+  const hint = document.getElementById('statusHint');
+  if(selectedKw){
+    const ex = EXERCISES[currentExIdx];
+    const kw = ex.kws.find(k=>k.id===selectedKw);
+    hint.textContent=`Odabrana: ${kw.text} — kliknite na search terms`;
+    hint.classList.add('on');
+  } else {
+    hint.textContent = connections.size>0
+      ? `${connections.size} veza — kliknite ključnu reč da nastavite`
+      : '← Kliknite na ključnu reč da počnete';
+    hint.classList.remove('on');
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   SVG LINES
+══════════════════════════════════════════════════ */
+function drawLines(){
+  const svg = document.getElementById('connSVG');
+  const grid = document.getElementById('matchGrid');
+  const cr = grid.getBoundingClientRect();
+  if(!cr.width) return;
+  svg.setAttribute('viewBox',`0 0 ${cr.width} ${cr.height}`);
+  svg.innerHTML='';
+  const COLORS={broad:'#818cf8',phrase:'#fb923c',exact:'#34d399'};
+  const DASH={broad:'4 4',phrase:'9 5',exact:null};
+  connections.forEach(conn=>{
+    const [kwId,stId]=conn.split(':');
+    const ke=document.getElementById('kw-'+kwId);
+    const se=document.getElementById('st-'+stId);
+    if(!ke||!se) return;
+    const ex=EXERCISES[currentExIdx];
+    const kw=ex.kws.find(k=>k.id===kwId);
+    const kr=ke.getBoundingClientRect();
+    const sr=se.getBoundingClientRect();
+    const x1=kr.right-cr.left, y1=kr.top+kr.height/2-cr.top;
+    const x2=sr.left-cr.left,  y2=sr.top+sr.height/2-cr.top;
+    const mx=(x1+x2)/2;
+    const isSel=selectedKw===kwId;
+    const op=isSel?1:0.25, sw=isSel?2.5:1.5;
+    const color=COLORS[kw.type];
+    const p=document.createElementNS('http://www.w3.org/2000/svg','path');
+    p.setAttribute('d',`M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`);
+    p.setAttribute('stroke',color);p.setAttribute('stroke-width',sw);
+    p.setAttribute('fill','none');p.setAttribute('opacity',op);
+    if(DASH[kw.type]) p.setAttribute('stroke-dasharray',DASH[kw.type]);
+    svg.appendChild(p);
+    [[x1,y1],[x2,y2]].forEach(([cx,cy])=>{
+      const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      c.setAttribute('cx',cx);c.setAttribute('cy',cy);c.setAttribute('r',3.5);
+      c.setAttribute('fill',color);c.setAttribute('opacity',op);svg.appendChild(c);
+    });
+  });
+}
+
+window.addEventListener('resize',()=>requestAnimationFrame(drawLines));
+
+/* ══════════════════════════════════════════════════
+   SUBMIT
+══════════════════════════════════════════════════ */
+document.getElementById('btnSubmit').addEventListener('click',async()=>{
+  if(connections.size===0){showToast('⚠️ Niste uspostavili ni jednu vezu!');return;}
+  const btn=document.getElementById('btnSubmit');
+  btn.disabled=true;btn.textContent='Šaljem…';
+  const ex = EXERCISES[currentExIdx];
+  const CORRECT = ex.correct;
+  let correct=0,wrong=0;
+  connections.forEach(c=>CORRECT.has(c)?correct++:wrong++);
+  const missed=CORRECT.size-correct;
+  const total=CORRECT.size;
+  const pct=Math.round(correct/total*100);
+
+  // Save to shared storage
+  try{
+    const key='lboard:'+teamName+'_'+currentExIdx;
+    const val=JSON.stringify({
+      team:teamName, score:correct, total, pct,
+      wrong, missed, exIdx:currentExIdx,
+      label:ex.label, ts:Date.now(),
+      connections:[...connections]
+    });
+    await window.storage.set(key,val,true);
+  }catch(e){console.warn('Storage error',e)}
+
+  showResults(correct,wrong,missed,total,pct);
+  btn.disabled=false;btn.textContent='Predaj odgovore ✓';
+});
+
+/* ══════════════════════════════════════════════════
+   RESULTS
+══════════════════════════════════════════════════ */
+function showResults(correct,wrong,missed,total,pct){
+  const emoji = pct>=90?'🏆':pct>=75?'🥇':pct>=60?'🥈':pct>=40?'🥉':'💡';
+  document.getElementById('resEmoji').textContent=emoji;
+  document.getElementById('resTeamName').textContent=teamName;
+  document.getElementById('resScoreNum').textContent=`${correct}/${total}`;
+  document.getElementById('resScoreLabel').textContent=`tačnih veza · ${pct}%`;
+  document.getElementById('statCorrect').textContent=correct;
+  document.getElementById('statWrong').textContent=wrong;
+  document.getElementById('statMissed').textContent=missed;
+  setTimeout(()=>{
+    document.getElementById('resScoreBar').style.width=pct+'%';
+  },200);
+
+  buildExplanations(correct,wrong,missed);
+  showScreen('s-results');
+}
+
+function buildExplanations(correct,wrong,missed){
+  const ex = EXERCISES[currentExIdx];
+  const CORRECT = ex.correct;
+  const section = document.getElementById('explSection');
+
+  // Wrong connections + missed connections
+  const wrongConns = [...connections].filter(c=>!CORRECT.has(c));
+  const missedConns = [...CORRECT].filter(c=>!connections.has(c));
+
+  if(wrongConns.length===0 && missedConns.length===0){
+    section.innerHTML=`<div style="text-align:center;padding:24px;color:var(--green);font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700">🎉 Sve veze su tačne! Odlično!</div>`;
+    return;
+  }
+
+  let html='';
+
+  if(wrongConns.length>0){
+    html+=`<h2>❌ Netačne veze (${wrongConns.length})</h2>`;
+    wrongConns.forEach(conn=>{
+      const [kwId,stId]=conn.split(':');
+      const kw=ex.kws.find(k=>k.id===kwId);
+      const st=ex.sts.find(s=>s.id===stId);
+      const why = ex.pairExpl?.[conn] || genWhy(kw,st,'wrong');
+      const rule = ex.expl[kwId];
+      html+=`<div class="expl-card">
+        <div class="expl-card-head">
+          <span class="expl-tag">Netačno</span>
+          <span class="expl-kw">${h(kw.text)}</span>
+          <span class="expl-arrow">→</span>
+          <span class="expl-st">"${h(st.text)}"</span>
+        </div>
+        <div class="expl-card-body">
+          <div class="expl-why">${why}</div>
+          <div class="expl-rule"><strong>Pravilo za ${kw.type==='broad'?'Broad Match':kw.type==='phrase'?'Phrase Match':'Exact Match'}:</strong> ${rule}</div>
+        </div>
+      </div>`;
+    });
+  }
+
+  if(missedConns.length>0){
+    html+=`<h2 style="margin-top:20px">⚠️ Propuštene veze (${missedConns.length})</h2>`;
+    missedConns.forEach(conn=>{
+      const [kwId,stId]=conn.split(':');
+      const kw=ex.kws.find(k=>k.id===kwId);
+      const st=ex.sts.find(s=>s.id===stId);
+      const why = genWhy(kw,st,'missed');
+      const rule = ex.expl[kwId];
+      html+=`<div class="expl-card">
+        <div class="expl-card-head">
+          <span class="expl-tag missed">Propušteno</span>
+          <span class="expl-kw">${h(kw.text)}</span>
+          <span class="expl-arrow">→</span>
+          <span class="expl-st">"${h(st.text)}"</span>
+        </div>
+        <div class="expl-card-body">
+          <div class="expl-why">${why}</div>
+          <div class="expl-rule"><strong>Pravilo za ${kw.type==='broad'?'Broad Match':kw.type==='phrase'?'Phrase Match':'Exact Match'}:</strong> ${rule}</div>
+        </div>
+      </div>`;
+    });
+  }
+
+  section.innerHTML=html;
+}
+
+function genWhy(kw,st,kind){
+  if(kind==='missed'){
+    const typeNames={broad:'Broad Match',phrase:'Phrase Match',exact:'Exact Match'};
+    return `Ova veza je tačna — trebalo je da povežete ključnu reč <strong>${h(kw.text)}</strong> sa search termom <strong>"${h(st.text)}"</strong> jer ${kw.type==='broad'?'Broad Match pokriva sve tematski srodne upite':kw.type==='phrase'?'fraza je prisutna u tačnom redosledu u search termu':'search term tačno odgovara ključnoj reči'}.`;
+  }
+  return `Ova veza nije tačna — ${kw.type==='broad'?'Broad Match ipak ima granicu tematske srodnosti':kw.type==='phrase'?'fraza nije prisutna u tačnom redosledu u search termu':'Exact Match zahteva tačno poklapanje'}.`;
+}
+
+document.getElementById('btnGoLb').addEventListener('click',()=>{
+  loadLeaderboard();
+  showScreen('s-leaderboard');
+});
+
+/* ══════════════════════════════════════════════════
+   LEADERBOARD
+══════════════════════════════════════════════════ */
+async function loadLeaderboard(){
+  const list=document.getElementById('lbList');
+  list.innerHTML='<div class="loading-msg">Učitavam rezultate…</div>';
+
+  try{
+    const keys = await window.storage.list('lboard:', true);
+    if(!keys || !keys.keys || keys.keys.length===0){
+      list.innerHTML='<div class="lb-empty">Još nema rezultata.<br>Budite prvi tim koji odigra! 🚀</div>';
+      return;
+    }
+
+    const entries=[];
+    for(const key of keys.keys){
+      try{
+        const res=await window.storage.get(key,true);
+        if(res && res.value){
+          const d=JSON.parse(res.value);
+          entries.push(d);
+        }
+      }catch(e){}
+    }
+
+    if(entries.length===0){
+      list.innerHTML='<div class="lb-empty">Još nema rezultata.</div>';
+      return;
+    }
+
+    // Sort by pct desc, then by ts asc
+    entries.sort((a,b)=>b.pct-a.pct||(a.ts-b.ts));
+
+    const maxScore=Math.max(...entries.map(e=>e.pct),1);
+
+    list.innerHTML=entries.map((e,i)=>{
+      const rankClass=i===0?'r1':i===1?'r2':i===2?'r3':'';
+      const rankEmoji=i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)+'.';
+      const isMine=e.team===teamName;
+      const barW=Math.round(e.pct/maxScore*100);
+      const dt=new Date(e.ts);
+      const timeStr=dt.getHours().toString().padStart(2,'0')+':'+dt.getMinutes().toString().padStart(2,'0');
+      return `<div class="lb-row${isMine?' lb-mine':''}">
+        <div class="lb-rank ${rankClass}">${rankEmoji}</div>
+        <div class="lb-team">${h(e.team)}<small>${e.label} · ${timeStr}</small></div>
+        <div class="lb-bar-cell"><div class="lb-bar-bg"><div class="lb-bar-fill" style="width:${barW}%"></div></div></div>
+        <div>
+          <div class="lb-score">${e.score}/${e.total}</div>
+          <div class="lb-pct">${e.pct}%</div>
+        </div>
+      </div>`;
+    }).join('');
+  }catch(err){
+    list.innerHTML=`<div class="lb-empty">Greška pri učitavanju.<br><small>${err.message||'Pokušajte ponovo'}</small></div>`;
+  }
+}
+
+function showLeaderboard(){
+  loadLeaderboard();
+  showScreen('s-leaderboard');
+}
+
+/* ══════════════════════════════════════════════════
+   UTILS
+══════════════════════════════════════════════════ */
+function h(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+let toastTimer;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+// Auto-refresh leaderboard when visible
+let lbRefreshInterval;
+document.getElementById('s-leaderboard').addEventListener('transitionend',()=>{});
+
+const observer=new MutationObserver(muts=>{
+  muts.forEach(m=>{
+    if(m.target.id==='s-leaderboard'){
+      if(m.target.classList.contains('active')){
+        lbRefreshInterval=setInterval(loadLeaderboard,15000);
+      } else {
+        clearInterval(lbRefreshInterval);
+      }
+    }
+  });
+});
+observer.observe(document.getElementById('s-leaderboard'),{attributes:true,attributeFilter:['class']});
+</script>
+</body>
+</html>
